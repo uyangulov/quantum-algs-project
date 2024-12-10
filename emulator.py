@@ -19,7 +19,7 @@ class MyEmulator(AbstractEmulator):
                     gate: Gate):
         
         qubit_index = gate.qubit_indices[0]
-        output = StateVector(new_vector = [0] * input.length)
+        output = StateVector([0] * input.length)
         matrix = gate.matrix
         
         for index in range(output.length):
@@ -40,7 +40,7 @@ class MyEmulator(AbstractEmulator):
                     gate: Gate):
         
         qubit1_index, qubit2_index = gate.qubit_indices
-        output = StateVector(new_vector = [0] * input.length)
+        output = StateVector([0] * input.length)
         matrix = gate.matrix
         
         for index in range(output.length):
@@ -77,6 +77,10 @@ class MyEmulator(AbstractEmulator):
             return num | (1 << loc)
         else:
             return num &(~(1 << loc))
+        
+    def __repr__(self):
+
+        return self.vector
     
     
     def apply_gate(self,

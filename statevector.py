@@ -1,9 +1,16 @@
 import math
 
 class StateVector:
+
     """
     A class to represent a quantum state vector for a quantum system with a specified number of qubits.
 
+    Qubit Indexing Convention:
+        For |ket⟩ vector the first qubit is leftmost. |001⟩ - first and second qubits are in |0⟩ state, third qibit is in |1⟩ state.
+        Terms in superposition state are indexed by integer values
+        |0001⟩, |0101⟩ are indexed by 0b1000 (8 in decimal) and 0b1010 (10 in decimal) respectively
+        |0000⟩ is indexed by 0.
+        
     Attributes:
         num_qubits (int): The number of qubits in the quantum system.
         vector (list[complex]): The state vector amplitudes.
@@ -11,13 +18,15 @@ class StateVector:
 
     Methods:
         vector: Property for accessing and updating the state vector.
-        __getitem__(key): Access a specific amplitude in the state vector.
-        __setitem__(key, value): Update a specific amplitude in the state vector.
+        __getitem__(key): See indexing convention. Example: __getitem__(0b1000) will access amplitude at |0001⟩
+        __setitem__(key, value): See indexing convention. Example: __getitem__(0b1000, val) will set amplitude at |0001⟩ to val
         from_list(new_vector): Create the state vector from a new list, checking if its length is a power of 2, and updating the number of qubits.
         from_num_qubits(num_qubits): Initialize a state vector from the number of qubits at |0> state.
-    """
 
-    def __init__(self, new_vector: list[complex] = None, num_qubits: int = None):
+    This means the qubits are ordered such that the rightmost qubit corresponds to the least significant bit in the binary representation of the state vector.
+    """    
+
+    def __init__(self, initializer):
         """
         Initialize the StateVector either from a list or from the number of qubits.
 
@@ -28,12 +37,12 @@ class StateVector:
         Raises:
             ValueError: If new_vector is not a power of 2 or if num_qubits is not a positive integer.
         """
-        if new_vector is not None:
-            self.from_list(new_vector)  # Initialize from the list
-        elif num_qubits is not None:
-            self.from_num_qubits(num_qubits)  # Initialize from num_qubits
+        if isinstance(initializer, list):
+            self.from_list(initializer)  # Initialize from the list
+        elif isinstance(initializer, int):
+            self.from_num_qubits(initializer)  # Initialize from num_qubits
         else:
-            raise ValueError("You must provide either new_vector or num_qubits.")
+            raise ValueError("You must provide either vector or number of qubits.")
 
     @property
     def vector(self):
@@ -46,7 +55,7 @@ class StateVector:
         return self._vector
 
     @vector.setter
-    def vector(self, new_vector: list[complex]):
+    def vector(self, new_vector: list):
         """
         Set the state vector amplitudes.
 
@@ -81,6 +90,9 @@ class StateVector:
 
         Returns:
             complex: The amplitude at the specified index.
+
+        Note:
+            See indexing convention. Example: __getitem__(0b1000) will access amplitude at |0001⟩
         """
         return self._vector[key]
 
@@ -92,6 +104,8 @@ class StateVector:
             key (int): The index of the amplitude to update.
             value: The new value for the amplitude.
 
+        Note:
+            See indexing convention. Example: __getitem__(0b1000, val) will set amplitude at |0001⟩ to val
         """
         self._vector[key] = value
 
@@ -109,7 +123,7 @@ class StateVector:
         length = len(new_vector)
         
         # Check if the length is a power of 2
-        if not (length and (length & (length - 1)) == 0):  # Checks if length is power of 2
+        if not (length > 0 and (length & (length - 1)) == 0):  # Checks if length is power of 2
             raise ValueError("Length of the new vector must be a power of 2.")
         
         # Update num_qubits based on the length of the new vector
