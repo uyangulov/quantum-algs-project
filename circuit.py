@@ -1,5 +1,8 @@
 import numpy as np
 from qiskit import QuantumCircuit as QiskitQuantumCircuit
+from qiskit.circuit.library import UnitaryGate
+
+
 
 class Gate:
     """
@@ -10,6 +13,7 @@ class Gate:
         qubit_indices (list[int]): The list of qubit indices the gate acts on.
         matrix (np.ndarray): The matrix representation of the quantum gate.
         matrix_size (int): The size of the matrix, i.e., the number of rows/columns.
+        num_qubits (int): number of qubits gate acts upon
 
     Methods:
         __repr__(): Returns a string representation of the Gate object.
@@ -206,43 +210,25 @@ class QuantumCircuit:
                 qubit_to_current_layer[qubit_id] = maximum_layer + 1
 
         return layer_to_gate_indeces
+
+
+    def to_qiskit(self):
+
+        """
+        Converts the custom QuantumCircuit into a Qiskit QuantumCircuit.
+
+        Returns:
+            QiskitQuantumCircuit: A Qiskit quantum circuit with the same gates as in the custom circuit.
+
+        """
     
-def to_qiskit(self):
-    
-    """
-    Converts the custom QuantumCircuit into a Qiskit QuantumCircuit.
+        qiskit_circuit = QiskitQuantumCircuit(self.num_qubits)
 
-    Returns:
-        QiskitQuantumCircuit: A Qiskit quantum circuit with the same gates as in the custom circuit.
-    """
-    # Create a Qiskit QuantumCircuit with the appropriate number of qubits
-    qiskit_circuit = QiskitQuantumCircuit(self.num_qubits)
+        for gate in self.gates:
+            qiskit_gate = UnitaryGate(gate.matrix, label = gate.name)
+            qiskit_circuit.append(qiskit_gate, gate.qubit_indices)
 
-    # Iterate over the gates in the custom QuantumCircuit
-    for gate in self.gates:
-        qubits = gate.qubit_indices
-
-        if len(gate.qubit_indices) == 1:  # Single qubit gate
-            qubit = qubits[0]
-
-            if gate.matrix.shape == (2, 2):  # Identity gate (2x2 matrix)
-                qiskit_circuit.i(qubit)
-            else:
-                # For now, you could add support for more types of gates here
-                raise NotImplementedError(f"Gate {gate.name} with 1 qubit not supported yet")
-
-        elif len(gate.qubit_indices) == 2:  # Two qubit gate
-            qubits = gate.qubit_indices
-            if gate.matrix.shape == (4, 4):  # Identity gate on two qubits
-                qiskit_circuit.i(qubits[0])
-                qiskit_circuit.i(qubits[1])
-            else:
-                # For now, assume two qubit gates are controlled-X (CNOT)
-                qiskit_circuit.cx(qubits[0], qubits[1])
-        else:
-            raise NotImplementedError(f"Gate with {len(gate.qubit_indices)} qubits not supported yet")
-
-    return qiskit_circuit
+        return qiskit_circuit
 
 
 
