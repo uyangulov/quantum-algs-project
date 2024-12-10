@@ -1,4 +1,5 @@
 import numpy as np
+from qiskit import QuantumCircuit as QiskitQuantumCircuit
 
 class Gate:
     """
@@ -48,6 +49,16 @@ class Gate:
         self.matrix = matrix
         self.matrix_size = matrix_size
 
+    @property
+    def num_qubits(self):
+        """
+        Number of gates this gate acts on
+
+        Returns:
+            int: number of qubits
+        """
+        return len(self.qubit_indices)
+
 
     def __repr__(self):
         """
@@ -57,42 +68,55 @@ class Gate:
             str: A formatted string representation of the Gate.
         """
         return f"Gate(name={self.name}, qubit_indices={self.qubit_indices}, matrix_size={self.matrix_size})"
+    
         
     
 class QuantumCircuit:
+
     """
     A class to represent a quantum circuit consisting of qubits and gates.
 
     This class allows for the creation of a quantum circuit, where qubits are labeled
     from 0 to num_qubits-1. Gates can be appended to the circuit, and the circuit 
     structure can be analyzed in terms of the layers required to execute the gates on qubits.
+    Additionally, this class provides methods to convert the quantum circuit to a Qiskit circuit.
 
     Attributes:
-    gates (list): A list of Gate objects representing the gates applied to the circuit.
-    
+        gates (list): A list of Gate objects representing the gates applied to the circuit.
+
     Methods:
-    __init__(gates: list[Gate]):
-        Initializes the quantum circuit with a list of gates. The number of qubits
-        is automatically determined based on the gates provided.
+        __init__(gates: list[Gate] = None):
+            Initializes the quantum circuit with a list of gates. The number of qubits
+            is automatically determined based on the gates provided.
 
-    append(gate: Gate):
-        Appends a gate to the quantum circuit, adjusting the number of qubits if necessary.
+        append(gate: Gate):
+            Appends a gate to the quantum circuit, adjusting the number of qubits if necessary.
 
-    compression_list():
-        Generates a list of gate layers that represent the layers of gates that can be applied
-        simultaneously. Each layer contains the indices of the gates that can be applied
-        to the qubits simultaneously, ensuring that no two gates in the same layer act on the
-        same qubit.
+        num_qubits (property):
+            The number of qubits in the quantum circuit. It is dynamically determined based on
+            the gates applied to the circuit.
 
-    num_qubits (property):
-        The number of qubits in the quantum circuit. (Maximum index of qubit + 1)
+        num_non_idle_qubits (property):
+            The number of non-idle qubits in the quantum circuit (qubits that are used by gates).
 
-    depth (property):
-        The number of layers (depth) in the quantum circuit, representing the maximum number
-        of sequential layers of gates that can be applied.
+        depth (property):
+            The number of layers (depth) in the quantum circuit, representing the maximum number
+            of sequential layers of gates that can be applied.
+
+        compression_list():
+            Generates a list of gate layers representing the gates that can be applied simultaneously.
+            Each layer contains the indices of the gates that can be applied to the qubits simultaneously,
+            ensuring that no two gates in the same layer act on the same qubit.
+
+        to_qiskit():
+            Converts the custom QuantumCircuit into a Qiskit QuantumCircuit. The method maps the gates
+            in the custom circuit to their corresponding Qiskit gates (e.g., identity, CNOT) and returns
+            a Qiskit QuantumCircuit with the same gates.
 
     Notes:
-    - The `gates` argument should be a list of Gate objects
+        - The `gates` argument should be a list of Gate objects.
+        - This class currently supports basic single- and two-qubit gates.
+        - The `to_qiskit()` method assumes gates are compatible with the Qiskit library's gate set.
 
     """
 
@@ -182,6 +206,43 @@ class QuantumCircuit:
                 qubit_to_current_layer[qubit_id] = maximum_layer + 1
 
         return layer_to_gate_indeces
+    
+def to_qiskit(self):
+    
+    """
+    Converts the custom QuantumCircuit into a Qiskit QuantumCircuit.
+
+    Returns:
+        QiskitQuantumCircuit: A Qiskit quantum circuit with the same gates as in the custom circuit.
+    """
+    # Create a Qiskit QuantumCircuit with the appropriate number of qubits
+    qiskit_circuit = QiskitQuantumCircuit(self.num_qubits)
+
+    # Iterate over the gates in the custom QuantumCircuit
+    for gate in self.gates:
+        qubits = gate.qubit_indices
+
+        if len(gate.qubit_indices) == 1:  # Single qubit gate
+            qubit = qubits[0]
+
+            if gate.matrix.shape == (2, 2):  # Identity gate (2x2 matrix)
+                qiskit_circuit.i(qubit)
+            else:
+                # For now, you could add support for more types of gates here
+                raise NotImplementedError(f"Gate {gate.name} with 1 qubit not supported yet")
+
+        elif len(gate.qubit_indices) == 2:  # Two qubit gate
+            qubits = gate.qubit_indices
+            if gate.matrix.shape == (4, 4):  # Identity gate on two qubits
+                qiskit_circuit.i(qubits[0])
+                qiskit_circuit.i(qubits[1])
+            else:
+                # For now, assume two qubit gates are controlled-X (CNOT)
+                qiskit_circuit.cx(qubits[0], qubits[1])
+        else:
+            raise NotImplementedError(f"Gate with {len(gate.qubit_indices)} qubits not supported yet")
+
+    return qiskit_circuit
 
 
 
