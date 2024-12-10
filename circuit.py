@@ -192,7 +192,7 @@ class QuantumCircuit:
         """
 
         if not self.gates:
-            return 0
+            return []
         
         qubit_to_current_layer = [0] * self.num_qubits
         layer_to_gate_indeces = []
