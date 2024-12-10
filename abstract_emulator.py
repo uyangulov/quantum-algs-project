@@ -32,28 +32,26 @@ class OperandOutOfBoundsError(IndexError):
 
 class AbstractEmulator(ABC):
 
-    pass
+    @abstractmethod
+    def apply_gate(self,
+                   gate: Gate,
+                   state_vector: StateVector,
+                   inplace: bool = False):
+        """
+        Apply gate to given state vector.
 
-    # @abstractmethod
-    # def apply_gate(self,
-    #                gate: Gate,
-    #                state_vector: StateVector,
-    #                inplace: bool = False):
-    #     """
-    #     Apply gate to given state vector.
+        Args:
+            gate: A gate to apply
+            state_vector: An operand
+            inplace: whether to modify input state vector
 
-    #     Args:
-    #         gate: A gate to apply
-    #         state_vector: An operand
-    #         inplace: whether to modify input state vector
+        Returns:
+            New statevector
 
-    #     Returns:
-    #         New statevector
-
-    #     Raises:
-    #         OperandOutOfBoundsError: if gate tries to act on qubits not present in state_vector
-    #     """
-    #     pass
+        Raises:
+            OperandOutOfBoundsError: if gate tries to act on qubits not present in state_vector
+        """
+        pass
 
     # @abstractmethod
     # def apply_gate_selfstate(self,

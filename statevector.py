@@ -22,8 +22,6 @@ class StateVector:
         __setitem__(key, value): See indexing convention. Example: __getitem__(0b1000, val) will set amplitude at |0001⟩ to val
         from_list(new_vector): Create the state vector from a new list, checking if its length is a power of 2, and updating the number of qubits.
         from_num_qubits(num_qubits): Initialize a state vector from the number of qubits at |0> state.
-
-    This means the qubits are ordered such that the rightmost qubit corresponds to the least significant bit in the binary representation of the state vector.
     """    
 
     def __init__(self, initializer):
@@ -42,7 +40,7 @@ class StateVector:
         elif isinstance(initializer, int):
             self.from_num_qubits(initializer)  # Initialize from num_qubits
         else:
-            raise ValueError("You must provide either vector or number of qubits.")
+            raise ValueError("You must provide either list of amplitudes or number of qubits.")
 
     @property
     def vector(self):

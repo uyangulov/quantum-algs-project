@@ -1,8 +1,5 @@
 import numpy as np
 
-
-import numpy as np
-
 class Gate:
     """
     A class representing a quantum gate, including the qubit indices it operates on and the gate matrix.
@@ -14,7 +11,6 @@ class Gate:
         matrix_size (int): The size of the matrix, i.e., the number of rows/columns.
 
     Methods:
-        qubit_indices(): Returns the list of qubit indices that the gate acts on.
         __repr__(): Returns a string representation of the Gate object.
     """
 
@@ -62,32 +58,110 @@ class Gate:
         """
         return f"Gate(name={self.name}, qubit_indices={self.qubit_indices}, matrix_size={self.matrix_size})"
         
-        
-class QuantumCircuit:
     
+class QuantumCircuit:
     """
-    Class assumes qubits are labeled by integers from 0 to num_qubits - 1
+    A class to represent a quantum circuit consisting of qubits and gates.
+
+    This class allows for the creation of a quantum circuit, where qubits are labeled
+    from 0 to num_qubits-1. Gates can be appended to the circuit, and the circuit 
+    structure can be analyzed in terms of the layers required to execute the gates on qubits.
+
+    Attributes:
+    gates (list): A list of Gate objects representing the gates applied to the circuit.
+    
+    Methods:
+    __init__(gates: list[Gate]):
+        Initializes the quantum circuit with a list of gates. The number of qubits
+        is automatically determined based on the gates provided.
+
+    append(gate: Gate):
+        Appends a gate to the quantum circuit, adjusting the number of qubits if necessary.
+
+    compression_list():
+        Generates a list of gate layers that represent the layers of gates that can be applied
+        simultaneously. Each layer contains the indices of the gates that can be applied
+        to the qubits simultaneously, ensuring that no two gates in the same layer act on the
+        same qubit.
+
+    num_qubits (property):
+        The number of qubits in the quantum circuit. (Maximum index of qubit + 1)
+
+    depth (property):
+        The number of layers (depth) in the quantum circuit, representing the maximum number
+        of sequential layers of gates that can be applied.
+
+    Notes:
+    - The `gates` argument should be a list of Gate objects
+
     """
-    def __init__(self,
-                 num_qubits: int = 0,
-                 gates: list[Gate] = []):
+
+    def __init__(self, gates: list[Gate] = None):
+
+        if gates is None:
+            self.gates = []  # Create a new list for each instance
+        else:
+            self.gates = gates
         
-        for gate in gates:
-            for qubit_idx in gate.qubit_indices:
-                assert qubit_idx < num_qubits, f"List of gates requires >= {qubit_idx + 1} qubits, \
-                                                 but only {num_qubits} are available"
+    @property
+    def num_qubits(self):
+        """
+        Returns the number of qubits in the quantum circuit. This is dynamically calculated
+        based on the gates applied in the circuit.
+
+        Returns:
+        int: The number of qubits in the quantum circuit.
+        """
+        if self.gates:
+            return max((max(gate.qubit_indices) for gate in self.gates), default=0) + 1
         
-        self.num_qubits = num_qubits
-        self.gates = gates
+        #empty list
+        return 0
+    
+    @property
+    def num_non_idle_qubits(self):
+        """
+        Returns the number of non-idle qubits in the quantum circuit. 
+
+        Returns:
+        int: The number of qubits in the quantum circuit.
+        """
+        unique_qubits = {qubit for gate in self.gates for qubit in gate.qubit_indices}
+        return len(unique_qubits)
         
-    def append(self, 
-               gate: Gate):
+
+    @property
+    def depth(self):
+        """
+        Returns the depth (number of layers) of the quantum circuit, representing the maximum
+        number of sequential layers of gates that can be applied to the qubits.
+
+        The depth is determined by finding the maximum layer index from the compression list of gates.
+
+        Returns:
+        int: The number of layers in the quantum circuit.
+        """
+        return len(self.compression_list())
+
+    def append(self, gate: Gate):
+        """
+        Appends a gate to the quantum circuit, adjusting the number of qubits if necessary.
+
+        Args:
+        gate (Gate): A Gate object representing the gate to be added to the circuit.
+        """
         self.gates.append(gate)
-        mx = max(gate.qubit_indices)+1
-        self.num_qubits = max(self.num_qubits, mx)
 
     def compression_list(self):
+        """
+        Generates a list of gate layers representing the gates that can be applied simultaneously.
 
+        Each layer contains the indices of the gates that can be applied to the qubits simultaneously,
+        ensuring that no two gates in the same layer act on the same qubit.
+
+        Returns:
+        list: A list of layers, where each layer is a list of gate indices that can be applied simultaneously.
+        """
         qubit_to_current_layer = [0] * self.num_qubits
         layer_to_gate_indeces = []
 
@@ -108,8 +182,6 @@ class QuantumCircuit:
                 qubit_to_current_layer[qubit_id] = maximum_layer + 1
 
         return layer_to_gate_indeces
-
-                
 
 
 
