@@ -105,19 +105,18 @@ class MyEmulator(AbstractEmulator):
             state_vector = output_state_vector
 
         return output_state_vector
-    
 
-    def apply_circuit(self, 
-                    circuit: QuantumCircuit,
-                    input_state_vector: StateVector,
-                    inplace: bool = False):
+    # def apply_circuit(self, 
+    #                 circuit: QuantumCircuit,
+    #                 input_state_vector: StateVector,
+    #                 inplace: bool = False):
         
-        raise(NotImplementedError)
+    #     raise(NotImplementedError)
     
-    def apply_circuit(self, circuit, state_vector, inplace = False):
-       raise(NotImplementedError)
+    # def apply_circuit(self, circuit, state_vector, inplace = False):
+    #    raise(NotImplementedError)
     
-    def apply_circuit_selfstate(self, circuit, inplace = False):
-        raise(NotImplementedError)
+    # def apply_circuit_selfstate(self, circuit, inplace = False):
+    #     raise(NotImplementedError)
 
     

@@ -70,54 +70,117 @@ class TestQuantumCircuit:
         assert converted == expected_circuit  # Assert that the circuits are the same
 
 
+from generator import RandomCircuitGenerator
 
-# class TestQuantumCircuitToQiskit:
+class TestQuantumCircuitDepth:
+    """
+    Test class for verifying the behavior of the QuantumCircuit depth
+    method and comparison with Qiskit-generated circuit depth.
+    """
 
-#     def create_custom_circuit(self):
-#         """Create a custom quantum circuit using our QuantumCircuit implementation."""
-#         gates = [
-#             Gate(qubit_indices=[0], matrix=IDENTITY2),  # Identity gate on qubit 0
-#             Gate(qubit_indices=[1], matrix=IDENTITY2),  # Identity gate on qubit 1
-#             Gate(qubit_indices=[0, 1], matrix=IDENTITY4),  # Gate on qubits 0 and 1
-#         ]
-#         return CustomQuantumCircuit(gates)
+    @pytest.fixture
+    def empty_circuit(self):
+        return QuantumCircuit()
 
-#     def convert_to_qiskit(self, custom_circuit):
-#         """Convert a custom quantum circuit to a Qiskit quantum circuit."""
-#         num_qubits = custom_circuit.num_qubits
-#         qiskit_circuit = QiskitQuantumCircuit(num_qubits)
+    def test_single_gate(self):
+        """Test for a single gate on a single qubit."""
 
-#         # Iterate over the custom circuit's gates and map to Qiskit gates
-#         for gate in custom_circuit.gates:
-#             if gate.num_qubits == 1: # Single qubit gate (identity in this case)
-#                 qubit = gate.qubit_indeces[0]
-#                 qiskit_circuit.id(qubit)
-#             elif gate.num_qubits == 2:
-#                 qubits = gate.qubit_indices
-#                     qiskit_circuit.id(qubits[0])
-#                     qiskit_circuit.id(qubits[1])
-#                 else:
-#                     # For the sake of this example, using a CNOT gate as a placeholder for any 2-qubit operation
-#                     qiskit_circuit.cx(qubits[0], qubits[1])
 
-#         return qiskit_circuit
+        gate1 = Gate(qubit_indices=[0], matrix=IDENTITY2)
+        circuit = QuantumCircuit([gate1])
 
-#     def test_comparison_with_qiskit_conversion(self):
-#         """Test that the converted Qiskit circuit has the same depth as the custom circuit."""
-#         # Create custom quantum circuit
-#         custom_circuit = self.create_custom_circuit()
+        # Expected depth = 1 (since only one gate exists)
+        assert circuit.depth == 1
 
-#         # Convert custom circuit to Qiskit
-#         qiskit_circuit = self.convert_to_qiskit(custom_circuit)
+        qiskit_circuit = circuit.to_qiskit()
+        assert qiskit_circuit.depth() == 1  # One gate in Qiskit circuit
 
-#         # Get the depth of the custom circuit (from compression list)
-#         custom_compression_list = custom_circuit.compression_list()
-#         custom_depth = len(custom_compression_list)
+    def test_separate_qubit_gates(self):
+        """Test for two gates on separate qubits."""
+        gate1 = Gate(qubit_indices=[0], matrix=IDENTITY2)
+        gate2 = Gate(qubit_indices=[1], matrix=IDENTITY2)
+        circuit = QuantumCircuit([gate1, gate2])
 
-#         # Get the depth of the Qiskit circuit
-#         qiskit_depth = qiskit_circuit.depth()
+        # Expected depth = 1 (both gates can be applied simultaneously)
+        assert circuit.depth == 1
+        qiskit_circuit = circuit.to_qiskit()
+        assert qiskit_circuit.depth() == 1  # Two gates in Qiskit circuit
 
-#         # Assert the depths match
-#         assert custom_depth == qiskit_depth, (
-#             f"Depth mismatch: custom depth = {custom_depth}, Qiskit depth = {qiskit_depth}"
-#         )
+    def test_same_qubit_gates(self):
+        """Test for two gates acting on the same qubit."""
+        gate1 = Gate(qubit_indices=[0], matrix=IDENTITY2)
+        gate2 = Gate(qubit_indices=[0], matrix=IDENTITY2)
+        circuit = QuantumCircuit([gate1, gate2])
+
+        # Expected depth = 2 (since gates act on the same qubit, they can't be applied in parallel)
+        assert circuit.depth == 2
+        qiskit_circuit = circuit.to_qiskit()
+        assert qiskit_circuit.depth() == 2  # Two gates in Qiskit circuit
+
+    def test_multiple_gate_layers(self):
+        """Test for multiple gates with different qubit overlaps."""
+        gate1 = Gate(qubit_indices=[0], matrix=IDENTITY2, name="Gate1")
+        gate2 = Gate(qubit_indices=[1], matrix=IDENTITY2, name="Gate2")
+        gate3 = Gate(qubit_indices=[2], matrix=IDENTITY2, name="Gate3")
+        gate4 = Gate(qubit_indices=[0,1], matrix=IDENTITY4, name="Gate4")
+        gate5 = Gate([1, 2], matrix=IDENTITY4, name="Gate5")
+        circuit = QuantumCircuit([gate1, gate2, gate3, gate4, gate5])
+
+        # Expected depth = 3 (since gates overlap and must be scheduled accordingly)
+        assert circuit.depth == 3
+
+        qiskit_circuit = circuit.to_qiskit()
+        assert qiskit_circuit.depth() == 3  # Five gates in Qiskit circuit
+
+    def test_no_gates(self, empty_circuit):
+        assert empty_circuit.depth == 0
+        assert empty_circuit.to_qiskit().depth() == 0
+
+    def test_generated_circ(self):
+        """Test circuit generated with Random Circuit Generator"""
+        for n in range(0,100,20):
+            gen = RandomCircuitGenerator(n,n,0.37)
+            circ = gen.generate()
+            qc = circ.to_qiskit()
+            assert circ.depth == qc.depth(), "Depths mismatch"
+
+    
+# Define pytest test cases
+class TestCompressionList:
+
+    @pytest.fixture
+    def circuit(self):
+        gen = RandomCircuitGenerator(152,152,0.52)
+        circ = gen.generate()
+        return circ
+
+    def test_no_qubit_reuse_in_layer(self, circuit):
+        """Test there are no gates within same layer and acting on same qubit"""
+        layers = circuit.compression_list()
+        gates = circuit.gates
+
+        for layer in layers:
+            qubits_in_layer = [qubit_index for gate_index in layer for qubit_index in gates[gate_index].qubit_indices]
+            assert len(set(qubits_in_layer)) == len(qubits_in_layer), f"Layer {layer} contains dupliate qubits"
+    
+
+    def test_all_gates_present(self, circuit):
+        # Test case to ensure all gates are present in the layers
+        layers = circuit.compression_list()
+        gates = circuit.gates
+        
+        all_gate_indices = set(range(len(circuit.gates)))
+        gate_indices_in_layers = {idx for layer in layers for idx in layer}
+        
+        assert all_gate_indices == gate_indices_in_layers, "Not all gates are included in the layers"
+
+    # def test_correct_layer_ordering(self, circuit):
+    #     # Test case to check that layers respect the order of gate indices
+    #     layers = circuit.compression_list()
+    #     gates = circuit.gates
+        
+    #     # Ensure that layers respect the gate order
+    #     for i in range(1, len(layers)):
+    #         prev_layer_gates = layers[i-1]
+    #         current_layer_gates = layers[i]
+    #         assert all(prev_gate < current_gate for prev_gate in prev_layer_gates for current_gate in current_layer_gates)
