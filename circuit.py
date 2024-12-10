@@ -190,6 +190,10 @@ class QuantumCircuit:
         Returns:
         list: A list of layers, where each layer is a list of gate indices that can be applied simultaneously.
         """
+
+        if not self.gates:
+            return 0
+        
         qubit_to_current_layer = [0] * self.num_qubits
         layer_to_gate_indeces = []
 
