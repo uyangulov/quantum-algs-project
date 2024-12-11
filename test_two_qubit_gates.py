@@ -3,7 +3,7 @@ import numpy as np
 from statevector import StateVector
 from circuit import Gate
 from emulator import MyEmulator, OperandOutOfBoundsError
-from defitions import CX, CY, CZ
+from definitions import CX, CY, CZ
 
 class TestCustomOperators:
 

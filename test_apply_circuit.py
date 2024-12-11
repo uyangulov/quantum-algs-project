@@ -3,7 +3,7 @@ import numpy as np
 from statevector import StateVector
 from circuit import Gate, QuantumCircuit
 from emulator import MyEmulator
-from defitions import X, CX
+from definitions import X, CX
 
 
 class TestApplyCircuit:
