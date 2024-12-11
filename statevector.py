@@ -29,9 +29,8 @@ class StateVector:
         Initialize the StateVector either from a list or from the number of qubits.
 
         Args:
-            new_vector (list[complex], optional): The state vector to initialize from.
-            num_qubits (int, optional): The number of qubits to initialize the state vector with.
-
+            initializer: either list of amplitudes or number of qubits
+            
         Raises:
             ValueError: If new_vector is not a power of 2 or if num_qubits is not a positive integer.
         """
