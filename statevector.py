@@ -1,4 +1,5 @@
 import math
+from qiskit.quantum_info import Statevector as QiskitStateVector
 
 class StateVector:
 
@@ -146,3 +147,8 @@ class StateVector:
         self._vector = [0] * state_vector_length
         self._vector[0] = 1  # Initialize in the |0⟩ state
         self.num_qubits = num_qubits
+
+    def to_qiskit(self):
+        qiskit_state_vector = QiskitStateVector(self.vector)
+        return qiskit_state_vector
+    

@@ -1,5 +1,5 @@
 import pytest
-from statevector import StateVector 
+from statevector import StateVector, QiskitStateVector
 
 class TestStateVector:
     # Tests for initialization from list
@@ -90,3 +90,20 @@ class TestStateVector:
         sv = StateVector(2)
         with pytest.raises(ValueError, match="The new vector length .* does not match the expected length .*"):
             sv.vector = [0.5, 0.5]  # Length mismatch
+
+
+class TestToQiskit:
+    
+    def test_to_qiskit_simple_state(self):
+        # Test with a simple state vector [1, 0]
+        my_state = StateVector([1, 0])
+        qiskit_state = my_state.to_qiskit()
+        # Assert if the Qiskit Statevector matches the expected state
+        assert qiskit_state == QiskitStateVector([1, 0])
+
+    def test_to_qiskit_superposition_state(self):
+        # Test with a superposition state [1/sqrt(2), 1/sqrt(2)]
+        my_state = StateVector([1 / 2**0.5, 1 / 2**0.5])
+        qiskit_state = my_state.to_qiskit()
+        # Assert if the Qiskit Statevector matches the expected state
+        assert qiskit_state == QiskitStateVector([1 / 2**0.5, 1 / 2**0.5])
