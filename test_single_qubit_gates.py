@@ -34,10 +34,8 @@ CNOT_GATE_MATRIX = np.array([
     [0, 0, 1, 0]
 ])
 
-
 sqrt2 = np.sqrt(2)
 sqrt6 = np.sqrt(6)
-
 
 class TestSingleQubitInputs:
 

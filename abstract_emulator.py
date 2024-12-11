@@ -35,8 +35,7 @@ class AbstractEmulator(ABC):
     @abstractmethod
     def apply_gate(self,
                    gate: Gate,
-                   state_vector: StateVector,
-                   inplace: bool = False):
+                   state_vector: StateVector):
         """
         Apply gate to given state vector.
 
@@ -53,58 +52,20 @@ class AbstractEmulator(ABC):
         """
         pass
 
-    # @abstractmethod
-    # def apply_gate_selfstate(self,
-    #                gate: Gate,
-    #                inplace: bool = False):
-    #     """
-    #     Apply gate to member state vector.
-
-    #     Args:
-    #         gate: A gate to apply
-    #         inplace: whether to modify member state vector
-
-    #     Returns:
-    #         New statevector
-
-    #     Raises:
-    #         OperandOutOfBoundsError: if gate tries to act on qubits not present in state_vector
-    #     """
-    #     pass
-
-
-    # @abstractmethod
-    # def apply_circuit(self,
-    #            circuit: QuantumCircuit,
-    #            state_vector: StateVector,
-    #            inplace: bool = False):
+    @abstractmethod
+    def apply_circuit(self,
+               circuit: QuantumCircuit,
+               state_vector: StateVector):
         
-    #     """
-    #     Apply quantum circuit to given state vector.
+        """
+        Apply quantum circuit to given state vector.
 
-    #     Args:
-    #         circuit: A circuit to apply
-    #         state_vector: An operand
-    #         inplace: whether to modify input state vector
+        Args:
+            circuit: A circuit to apply
+            state_vector: An operand
+            inplace: whether to modify input state vector
 
-    #     Returns:
-    #         New statevector
-    #     """
-    #     pass
-    
-    # @abstractmethod
-    # def apply_circuit_selfstate(self,
-    #               circuit: QuantumCircuit,
-    #               inplace: bool = False):
-    #     """
-    #     Apply quantum circuit to member state vector
-
-    #     Args:
-    #         circuit: A circuit to apply
-    #         state_vector: An operand
-    #         inplace: whether to modify input state vector
-
-    #     Returns:
-    #         New statevector
-    #     """
-    #     pass
+        Returns:
+            New statevector
+        """
+        pass

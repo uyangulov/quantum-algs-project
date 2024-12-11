@@ -5,12 +5,8 @@ from statevector import StateVector
 
 
 class MyEmulator(AbstractEmulator):
-
-    def __init__(self, 
-                 state_vector: StateVector = None):
-
-        self.state_vector = state_vector
     
+
     '''
         Apply single-qubit gate to input_state_vector. Does not modify input
     '''
@@ -85,38 +81,37 @@ class MyEmulator(AbstractEmulator):
     
     def apply_gate(self,
                    gate: Gate,
-                   state_vector: StateVector,
-                   inplace: bool = False):
+                   input: StateVector):
         
         qubit_indeces = gate.qubit_indices
 
-        if any(id >= state_vector.num_qubits for id in qubit_indeces):
-            raise OperandOutOfBoundsError(gate, state_vector.num_qubits)
+        if any(id >= input.num_qubits for id in qubit_indeces):
+            raise OperandOutOfBoundsError(gate, input.num_qubits)
         
-        output_state_vector = None
+        output = None
         if len(qubit_indeces) == 1:
-            output_state_vector = self.__apply1Q__(state_vector, gate)
+            output = self.__apply1Q__(input, gate)
         elif len(qubit_indeces) == 2:
-            output_state_vector = self.__apply2Q__(state_vector, gate)
+            output = self.__apply2Q__(input, gate)
         else:
             raise UnsupportedNumberOfQubits(gate)
-
-        if (inplace):
-            state_vector = output_state_vector
-
-        return output_state_vector
-
-    # def apply_circuit(self, 
-    #                 circuit: QuantumCircuit,
-    #                 input_state_vector: StateVector,
-    #                 inplace: bool = False):
         
-    #     raise(NotImplementedError)
-    
-    # def apply_circuit(self, circuit, state_vector, inplace = False):
-    #    raise(NotImplementedError)
-    
-    # def apply_circuit_selfstate(self, circuit, inplace = False):
-    #     raise(NotImplementedError)
+        return output
+
+    def apply_circuit(self, 
+                    circuit: QuantumCircuit,
+                    state_vector: StateVector):
+        
+        if circuit.num_qubits != state_vector.num_qubits:
+            raise ValueError("state_vector and circuit size mismatch")
+        
+        output = state_vector
+        for gate in circuit.gates:
+            output = self.apply_gate(gate, output)
+
+        return output
+
+
+        
 
     
