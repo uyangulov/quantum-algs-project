@@ -103,7 +103,7 @@ class TestToQiskit:
 
     def test_to_qiskit_superposition_state(self):
         # Test with a superposition state [1/sqrt(2), 1/sqrt(2)]
-        my_state = StateVector([1 / 2**0.5, 1 / 2**0.5])
+        my_state = StateVector([1j / 2**0.5, 1 / 2**0.5])
         qiskit_state = my_state.to_qiskit()
         # Assert if the Qiskit Statevector matches the expected state
-        assert qiskit_state == QiskitStateVector([1 / 2**0.5, 1 / 2**0.5])
+        assert qiskit_state == QiskitStateVector([1j / 2**0.5, 1 / 2**0.5])
