@@ -1,8 +1,11 @@
 import pytest
 from circuit import QuantumCircuit, Gate
-from qiskit import QuantumCircuit as QiskitQC
+from qiskit import QuantumCircuit as QiskitQC, QuantumRegister as QiskitQReg
 from qiskit.circuit.library import UnitaryGate
 import numpy as np
+from qiskit.quantum_info import Operator
+from definitions import X as X_matrix, Y as Y_matrix
+
 
 IDENTITY2 = np.eye(2)
 IDENTITY4 = np.eye(4)  
@@ -174,13 +177,35 @@ class TestCompressionList:
         
         assert all_gate_indices == gate_indices_in_layers, "Not all gates are included in the layers"
 
-    # def test_correct_layer_ordering(self, circuit):
-    #     # Test case to check that layers respect the order of gate indices
-    #     layers = circuit.compression_list()
-    #     gates = circuit.gates
+class TestQuantumCircuit:
+
+    @pytest.fixture
+    def qiskit_circuit(self):
+        """Fixture to create a simple Qiskit quantum circuit."""
+        qr = QiskitQReg(2)
+        circ = QiskitQC(qr)
+        circ.x(0)  # Apply X gate to qubit 0
+        circ.y(1)  # Apply X gate to qubit 0
+        return circ
+
+    def test_from_qiskit_conversion(self, qiskit_circuit):
+        """Test the conversion from Qiskit QuantumCircuit to custom QuantumCircuit."""
+        # Create a custom QuantumCircuit instance
+        custom_circuit = QuantumCircuit()
+
+        # Convert the Qiskit circuit to custom format
+        custom_circuit.from_qiskit(qiskit_circuit)
+
+        # Check the number of gates in the custom circuit
+        assert len(custom_circuit.gates) == 2, "Expected 2 gates in the custom circuit"
+
+        # Verify the gates' qubit indices and operation types
+        x_gate = custom_circuit.gates[0]
+        h_gate = custom_circuit.gates[1]
+
+        assert x_gate.qubit_indices == [0], "X gate should act on qubit 0"
+        assert h_gate.qubit_indices == [1], "H gate should act on qubit 1"
         
-    #     # Ensure that layers respect the gate order
-    #     for i in range(1, len(layers)):
-    #         prev_layer_gates = layers[i-1]
-    #         current_layer_gates = layers[i]
-    #         assert all(prev_gate < current_gate for prev_gate in prev_layer_gates for current_gate in current_layer_gates)
+        # Further, verify gate matrices if necessary
+        assert (x_gate.matrix == X_matrix).all(), "Matrix of X gate does not match"
+        assert (h_gate.matrix == Y_matrix).all(), "Matrix of H gate does not match"

@@ -223,7 +223,6 @@ class QuantumCircuit:
             QiskitQuantumCircuit: A Qiskit quantum circuit with the same gates as in the custom circuit.
 
         """
-    
         qiskit_circuit = QiskitQuantumCircuit(self.num_qubits)
 
         for gate in self.gates:
@@ -244,8 +243,32 @@ class QuantumCircuit:
         
         for gate in other_circuit.gates:
             self.append(gate)
+
         
+    def from_qiskit(self, qiskit_circuit: QiskitQuantumCircuit):
+        """
+        Converts a Qiskit QuantumCircuit into the custom QuantumCircuit format.
+        
+        Args:
+            qiskit_circuit (QiskitQuantumCircuit): The Qiskit quantum circuit to be converted.
+        
+        Raises:
+            ValueError: If an operation in the Qiskit circuit cannot be converted into a Gate object.
+        """
+        self.gates = []  # Reset the current gates in the custom circuit
+
+        for instruction in qiskit_circuit.data:
+            operation = instruction.operation
+            qubits = instruction.qubits
+
+            # Extract the qubit indices for this operation
+            qubit_indices = [qubit._index for qubit in qubits]
+
+            unitary_matrix = operation.to_matrix()
+            gate_name = operation.label or "custom"
+            gate = Gate(qubit_indices=qubit_indices, matrix=unitary_matrix, name=gate_name)
+
+            self.gates.append(gate)
+
+        return self
     
-
-
-
