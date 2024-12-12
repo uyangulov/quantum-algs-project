@@ -39,7 +39,7 @@ class QiskitWrapperEmulator(AbstractEmulator):
         qiskit_circuit = circuit.to_qiskit()
         qiskit_state_vector = input_vector.to_qiskit()
         qiskit_modified = qiskit_state_vector.evolve(qiskit_circuit)
-        output = StateVector(qiskit_modified.data)
+        output = StateVector(qiskit_modified.data.tolist())
         return output
     
     def apply_gate(self,
@@ -62,7 +62,7 @@ class QiskitWrapperEmulator(AbstractEmulator):
         qiskit_state_vector = input_vector.to_qiskit()
         qiskit_gate = QiskitUnitaryGate(gate.matrix, label=gate.name)
         qiskit_evolved = qiskit_state_vector.evolve(qiskit_gate, qargs=gate.qubit_indices)
-        output = StateVector(qiskit_evolved)
+        output = StateVector(qiskit_evolved.data.tolist())
         return output
 
         
