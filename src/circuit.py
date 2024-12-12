@@ -1,6 +1,8 @@
 import numpy as np
 from qiskit import QuantumCircuit as QiskitQuantumCircuit
 from qiskit.circuit.library import UnitaryGate
+from qiskit.quantum_info import Operator
+from definitions import CX
 
 
 
@@ -251,24 +253,25 @@ class QuantumCircuit:
         
         Args:
             qiskit_circuit (QiskitQuantumCircuit): The Qiskit quantum circuit to be converted.
-        
-        Raises:
-            ValueError: If an operation in the Qiskit circuit cannot be converted into a Gate object.
+            
         """
         self.gates = []  # Reset the current gates in the custom circuit
 
+        #DIRTY_WORKAROUND.BEGIN
         for instruction in qiskit_circuit.data:
-            operation = instruction.operation
-            qubits = instruction.qubits
 
-            # Extract the qubit indices for this operation
-            qubit_indices = [qubit._index for qubit in qubits]
-
-            unitary_matrix = operation.to_matrix()
-            gate_name = operation.label or "custom"
-            gate = Gate(qubit_indices=qubit_indices, matrix=unitary_matrix, name=gate_name)
-
-            self.gates.append(gate)
+            unitary_matrix = Operator(
+                QiskitQuantumCircuit.from_instructions([instruction])
+            ).data
+            
+            qubit_indices = [qubit._index for qubit in instruction.qubits]
+            gate = Gate(
+                qubit_indices=qubit_indices,
+                matrix=unitary_matrix,
+                name=instruction.name)
+            
+            self.append(gate)
 
         return self
+        #DIRTY_WORKAROUND.END
     
