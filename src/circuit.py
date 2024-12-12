@@ -72,9 +72,7 @@ class Gate:
             str: A formatted string representation of the Gate.
         """
         return f"Gate(name={self.name}, qubit_indices={self.qubit_indices}, matrix_size={self.matrix_size})"
-    
-        
-    
+
 class QuantumCircuit:
 
     """
@@ -233,6 +231,21 @@ class QuantumCircuit:
             qiskit_circuit.append(qiskit_gate, gate.qubit_indices)
 
         return qiskit_circuit
+    
+    """
+        Append quantum circuit to the end of this quantum circuit
+
+        Returns: None
+    """
+    def concat(self, other_circuit: 'QuantumCircuit'):
+
+        if other_circuit.num_qubits != self.num_qubits:
+            raise ValueError("Circuit size mismatch")
+        
+        for gate in other_circuit.gates:
+            self.append(gate)
+        
+    
 
 
 
