@@ -1,4 +1,3 @@
-
 from abstract_emulator import AbstractEmulator, UnsupportedNumberOfQubits, OperandOutOfBoundsError
 from circuit import Gate, QuantumCircuit
 from statevector import StateVector
