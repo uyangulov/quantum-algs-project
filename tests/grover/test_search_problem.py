@@ -13,6 +13,11 @@ class TestSearchProblem:
         return SearchProblem(N=8, marked=[3, 5])
     
     @pytest.fixture
+    def search_problem_1q(self):
+        """Fixture to create a SearchProblem instance."""
+        return SearchProblem(N=1, marked=[0])
+    
+    @pytest.fixture
     def emulator(self):
         """Fixture to create a SearchProblem instance."""
         return MyEmulator()
@@ -56,5 +61,19 @@ class TestSearchProblem:
         compare[3], compare[5] = -compare[3], -compare[5]
         
         assert np.allclose(sv, compare), "Oracle matrix does not match the expected transformation"
+
+    
+    def test_oracle_circuit_1q(self, search_problem_1q, emulator):
+        """Test the oracle circuit output"""
+
+        circuit = search_problem_1q.oracle_circuit()
+        N = 2**search_problem_1q.num_qubits_required
+
+        sv = emulator.apply_circuit(
+            circuit,
+            StateVector(list(np.ones(N)/np.sqrt(N)))
+        ).vector
+        
+        assert np.allclose(sv, [-1/np.sqrt(2),1/np.sqrt(2)]), "Oracle matrix does not match the expected transformation"
 
         

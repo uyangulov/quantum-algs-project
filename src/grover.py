@@ -134,13 +134,15 @@ class GroverCircuit(QuantumCircuit):
 
         #oracle circuit
         oracle_circuit = problem.oracle_circuit()
-        self.append(oracle_circuit)
+        self.concat(oracle_circuit)
 
         #diffusion operator
         self.__append_H__(qubits_required)
         reflection_circuit = self.__make__reflection__circuit__(qubits_required)
-        self.append(reflection_circuit)
+        self.concat(reflection_circuit)
         self.__append_H__(qubits_required)
+
+        return self
 
     
     def __make__reflection__circuit__(self, n):
@@ -149,18 +151,20 @@ class GroverCircuit(QuantumCircuit):
         reflection_matrix[0, 0] = 1
         reflection_circuit = QiskitQuantumCircuit(n)
         reflection_circuit.append(
-            Operator(reflection_circuit), qargs = range(n)
+            Operator(reflection_matrix), qargs = range(n)
         )
         reflection_circuit = PassManager(
             Unroll3qOrMore(basis_gates=['cx', 'rx', 'rz', 'ry'])
         ).run(reflection_circuit)
+
+        print(reflection_matrix)
 
         circuit = QuantumCircuit().from_qiskit(reflection_circuit)
         return circuit
 
     def __append_H__(self, n):
         for index in range(n):
-            self.append(Gate([0], H, f"Hadamard_{index}"))
+            self.append(Gate([index], H, f"Hadamard_{index}"))
 
 
 

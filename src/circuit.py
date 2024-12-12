@@ -178,6 +178,9 @@ class QuantumCircuit:
         Args:
         gate (Gate): A Gate object representing the gate to be added to the circuit.
         """
+        if not isinstance(gate, Gate):
+            raise ValueError(f"Expected Gate object, got {gate}")
+        
         self.gates.append(gate)
 
     def compression_list(self):
