@@ -200,8 +200,7 @@ class TestQuantumCircuitFromQiskit:
         assert len(custom_circuit.gates) == 2, "Expected 2 gates in the custom circuit"
 
         # Verify the gates' qubit indices and operation types
-        x_gate = custom_circuit.gates[0]
-        h_gate = custom_circuit.gates[1]
+        x_gate, h_gate = custom_circuit.gates
 
         assert x_gate.qubit_indices == [0], "X gate should act on qubit 0"
         assert h_gate.qubit_indices == [1], "H gate should act on qubit 1"
