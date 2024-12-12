@@ -130,6 +130,8 @@ class StateVector:
         # Set the new vector
         self.vector = new_vector
 
+        return self
+
     def from_num_qubits(self, num_qubits: int):
         """
         Initialize the state vector from the number of qubits.
@@ -147,6 +149,8 @@ class StateVector:
         self._vector = [0] * state_vector_length
         self._vector[0] = 1  # Initialize in the |0⟩ state
         self.num_qubits = num_qubits
+
+        return self
 
     def to_qiskit(self):
         qiskit_state_vector = QiskitStateVector(self.vector)
