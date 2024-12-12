@@ -177,7 +177,7 @@ class TestCompressionList:
         
         assert all_gate_indices == gate_indices_in_layers, "Not all gates are included in the layers"
 
-class TestQuantumCircuit:
+class TestQuantumCircuitFromQiskit:
 
     @pytest.fixture
     def qiskit_circuit(self):
