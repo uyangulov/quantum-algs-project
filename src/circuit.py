@@ -243,9 +243,6 @@ class QuantumCircuit:
     """
     def concat(self, other_circuit: 'QuantumCircuit'):
 
-        if other_circuit.num_qubits != self.num_qubits:
-            raise ValueError("Circuit size mismatch")
-        
         for gate in other_circuit.gates:
             self.append(gate)
 
