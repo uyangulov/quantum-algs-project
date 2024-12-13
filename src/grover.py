@@ -156,9 +156,6 @@ class GroverCircuit(QuantumCircuit):
 
         qubits_required = problem.num_qubits_required
 
-        # Apply a row of Hadamard gates
-        self.__append_H__(qubits_required)
-
         # Add the oracle circuit
         oracle_circuit = problem.oracle_circuit()
         self.concat(oracle_circuit)
