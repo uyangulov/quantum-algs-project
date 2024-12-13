@@ -1,7 +1,6 @@
 from abstract_emulator import AbstractEmulator
 from circuit import QuantumCircuit, Gate
 from statevector import StateVector
-from qiskit import QuantumCircuit as QiskitQuantumCircuit
 from qiskit.circuit.library import UnitaryGate as QiskitUnitaryGate
 
 class QiskitWrapperEmulator(AbstractEmulator):
