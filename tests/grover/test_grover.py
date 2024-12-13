@@ -96,19 +96,14 @@ class TestGrover:
         ))
 
         n_iter = int(ceil(pi * sqrt(N) / 4)) + 10
-        print(n_iter)
+        theta = 2 * np.arccos(sqrt(1-M/N))
 
-        comp = []
         for k in range(1,n_iter):
             state_vector = emu.apply_circuit(grover, state_vector)
-            comp.append(M * state_vector[1] / sqrt(M))
-
-        theta = 2 * np.arccos(sqrt(1-M/N))
-        rg = np.arange(1, n_iter, 1)
-        theor = np.sin(theta * (2 * rg + 1) / 2)
-        assert np.allclose(comp, theor)
-        
-
+            for i, elem in enumerate(sp.marked_numbers):
+                assert np.allclose(
+                    np.sin(theta * (2 * k + 1) / 2),
+                    M * state_vector[1] / sqrt(M))
 
 
 
