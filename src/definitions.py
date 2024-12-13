@@ -1,5 +1,5 @@
 import numpy as np
-cos, sin = np.cos, np.sin
+cos, sin, exp = np.cos, np.sin, np.exp
 
 # 1) Pauli X, Y, Z matrices
 I = np.eye(2)
@@ -33,10 +33,18 @@ CY = np.array([[1, 0, 0, 0],
                [0, 0, 1, 0],
                [0, 1j, 0, 0]])
 
-
+#qulacs definition
+#https://docs.qulacs.org/ja/latest/guide/2.0_python_advanced.html
 def RX(theta):
     theta2 = theta/2
     return np.array([
-        [cos(theta2), -1j*sin(theta2)],
-        [-1j*sin(theta2), cos(theta2)],
+        [cos(theta2), 1j*sin(theta2)],
+        [1j*sin(theta2), cos(theta2)],
+    ])
+
+def RZ(theta):
+    theta2 = theta/2
+    return np.array([
+        [exp(1j*theta2), 0],
+        [0, exp(-1j*theta2)],
     ])
