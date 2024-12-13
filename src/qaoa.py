@@ -46,7 +46,14 @@ class QAOA_MaxCut_Circuit(QuantumCircuit):
             self.append(Gate([jndex], RZ(-2 * gamma), "RZ"))
             self.append(Gate([index,jndex], CNOT, "CNOT"))
 
-    def expectation_val(self, backend: str = "MyEmulator"):
+    def max_cut_objective(self, bitstring):
+        objective = 0
+        for i, j in self.edges:
+            if bitstring[i] != bitstring[j]:
+                objective -= 1
+        return objective
+
+    def expectation_val(self, backend: str = "MyEmulator", shots: int = None):
 
         emulator = None
         if backend == "Qiskit":
@@ -62,19 +69,33 @@ class QAOA_MaxCut_Circuit(QuantumCircuit):
             StateVector(self.num_qubits)
         )
 
-        # calculate C|result>, where C is cost hamiltonian: \sum Z_i Z_j
-        evolved = result.vector.copy()
-        for i, j in self.edges:
-            temp = emulator.apply_gate(Gate([i], Z, "Z"), result)
-            temp = emulator.apply_gate(Gate([j], Z, "Z"), temp)
-            evolved = np.add(evolved, temp.vector)
+        #compute expectation value exactly
+        if shots == None:
+            evolved = result.vector.copy()
+            # calculate H|result>, where H is cost hamiltonian: H = 1/2 ∑_ij Z_i Z_j - N_edges/2
+            for i, j in self.edges:
+                temp = emulator.apply_gate(Gate([i], Z, "Z"), result)
+                temp = emulator.apply_gate(Gate([j], Z, "Z"), temp)
+                evolved = np.add(evolved, temp.vector)
 
-        #C is hermitan so trunk small imag part, if anuy
-        val = np.real(np.dot(np.conjugate(result.vector), evolved))
-
-        return val
-    
-
+            # calculate <result|H|result>
+            val = np.real(np.dot(np.conjugate(result.vector), evolved))
+            return (val - len(self.edges)) / 2 
+        
+        #estimate expectation value by "measurement"
+        else:
+            probablilties = np.abs(result.vector)**2
+            counts = np.random.multinomial(shots, probablilties)
+            sum = 0
+            for number, count in enumerate(counts):
+                objective = self.max_cut_objective(format(number, f"0{self.num_qubits}b")[::-1])
+                sum += objective * count
+            return sum / np.sum(counts)
+            
+            
+            
+        
+            
 
             
 

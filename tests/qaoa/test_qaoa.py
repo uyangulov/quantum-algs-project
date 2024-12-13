@@ -27,12 +27,12 @@ class TestQAOA:
         x0 = np.array( [0.1, 0.1 ])
         result = minimize(expectation, x0, args="MyEmulator", options={'maxiter':500}, method='powell')
 
-        assert np.allclose(result.fun, -1, atol = atol), "value after optimization incorrect"
+        assert np.allclose(result.fun, -2.5, atol = atol), "value after optimization incorrect"
         assert np.allclose(result.x, [1.17809152, 0.39269362], atol = atol), "(beta, gamma) after optimization  incorrect" 
 
     def test_qiskit_expectation(self, atol):
         x0 = np.array( [0.1, 0.1 ])
         result = minimize(expectation, x0, args="Qiskit", options={'maxiter':500}, method='powell')
 
-        assert np.allclose(result.fun, -1, atol = atol), "value after optimization incorrect"
+        assert np.allclose(result.fun, -2.5, atol = atol), "value after optimization incorrect"
         assert np.allclose(result.x, [1.17809152, 0.39269362], atol = atol), "(beta, gamma) after optimization  incorrect" 
