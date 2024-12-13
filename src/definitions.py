@@ -1,4 +1,5 @@
 import numpy as np
+cos, sin = np.cos, np.sin
 
 # 1) Pauli X, Y, Z matrices
 I = np.eye(2)
@@ -31,3 +32,11 @@ CY = np.array([[1, 0, 0, 0],
                [0, 0, 0, -1j],
                [0, 0, 1, 0],
                [0, 1j, 0, 0]])
+
+
+def RX(theta):
+    theta2 = theta/2
+    return np.array([
+        [cos(theta2), -1j*sin(theta2)],
+        [-1j*sin(theta2), cos(theta2)],
+    ])
