@@ -118,25 +118,52 @@ class SearchProblem:
        
     
 class GroverCircuit(QuantumCircuit):
+    """
+    Represents a quantum circuit implementation of Grover's search algorithm.
+    This class builds the Grover's algorithm circuit from a given search problem.
+
+    Attributes:
+        gates (list): A list to store the gates in the circuit.
+    """
 
     def __init__(self):
+        """
+        Initializes the GroverCircuit class.
+        """
         self.gates = []
 
     def from_search_problem(self, problem: SearchProblem):
+        """
+        Constructs the Grover's algorithm circuit from a given search problem.
 
+        The circuit is built with the following steps:
+        1. Apply a row of Hadamard gates to create an equal superposition state.
+        2. Apply the oracle circuit provided by the search problem.
+        3. Apply the diffusion operator.
+
+        Args:
+            problem (SearchProblem): An instance of SearchProblem defining the
+                                     oracle and the number of qubits required.
+
+        Returns:
+            GroverCircuit: The constructed Grover's circuit.
+
+        Raises:
+            ValueError: If the provided problem is not an instance of SearchProblem.
+        """
         if not isinstance(problem, SearchProblem):
             raise ValueError(f'SearchProblem instance required, not {type(problem)}')
 
         qubits_required = problem.num_qubits_required
-        
-        #row of hadamards
+
+        # Apply a row of Hadamard gates
         self.__append_H__(qubits_required)
 
-        #oracle circuit
+        # Add the oracle circuit
         oracle_circuit = problem.oracle_circuit()
         self.concat(oracle_circuit)
 
-        #diffusion operator
+        # Add the diffusion operator
         self.__append_H__(qubits_required)
         reflection_circuit = self.__make__reflection__circuit__(qubits_required)
         self.concat(reflection_circuit)
@@ -144,97 +171,42 @@ class GroverCircuit(QuantumCircuit):
 
         return self
 
-    
     def __make__reflection__circuit__(self, n):
-        
+        """
+        Constructs the reflection (inversion about the mean) circuit.
+
+        This circuit implements the reflection operator used in Grover's algorithm.
+
+        Args:
+            n (int): Number of qubits.
+
+        Returns:
+            QuantumCircuit: The constructed reflection circuit.
+        """
         reflection_matrix = -np.eye(2**n)
         reflection_matrix[0, 0] = 1
         reflection_circuit = QiskitQuantumCircuit(n)
         reflection_circuit.append(
-            Operator(reflection_matrix), qargs = range(n)
+            Operator(reflection_matrix), qargs=range(n)
         )
         reflection_circuit = PassManager(
             Unroll3qOrMore(basis_gates=['cx', 'rx', 'rz', 'ry'])
         ).run(reflection_circuit)
 
-        print(reflection_matrix)
-
         circuit = QuantumCircuit().from_qiskit(reflection_circuit)
         return circuit
 
     def __append_H__(self, n):
+        """
+        Appends Hadamard gates to the circuit for all qubits.
+
+        Args:
+            n (int): Number of qubits to apply the Hadamard gate to.
+        """
         for index in range(n):
             self.append(Gate([index], H, f"Hadamard_{index}"))
 
 
-
-    
-    
-
-
-
-        
-
-
-
-        
-
-
-# #construct oracle matrix by answer
-# def oracle(answer : list[int]):
-#     n = len(answer)
-#     num = sum([2**i * answer[i] for i in range(n)])
-#     print(num)
-#     N = 2**n
-#     diag_arr = np.full(shape=(N,), fill_value=1)
-#     diag_arr[num] = -1
-#     mat = np.diag(diag_arr)
-#     return mat
-    
-# def hadamard(n):
-#     H = (1 / np.sqrt(2)) * np.array([[1, 1], 
-#                                    [1, -1]])
-#     return reduce(np.kron, [H] * n)
-
-
-# #num of qubits
-# n = 3
-# N = 2**n
-
-
-# state_vector = np.ones(shape=(N,))
-# state_vector /= np.sqrt(N)
-# ans = np.random.randint(0, 2, size=n)
-# num = sum([2**i * ans[i] for i in range(n)])
-# print(ans)
-
-# orr  = oracle(ans)
-# had  = hadamard(n)
-
-# theta = 2 * np.arccos(np.sqrt(1 - 1/N))
-# #n_iter = int(np.pi/4 * np.sqrt(N)) + 1
-# n_iter = 100
-
-# comp = []
-
-# for k in range(1, n_iter):
-
-#     state_vector = orr @ state_vector
-#     state_vector = had @ state_vector
-#     state_vector = -state_vector
-#     state_vector[0] = -state_vector[0]
-#     state_vector = had @ state_vector
-
-#     comp.append(state_vector[num])
-
-# rg = np.arange(1,n_iter,0.01)
-# theor = np.sin(theta * (2 * rg + 1) / 2)
-# print(theor)
-
-# # plt.scatter(range(1,n_iter), comp, label = r'grover result')
-# # plt.plot(rg, theor, label = r'sin($\frac{2k+1}{2} \theta$)' , ls = ":")
-# # plt.legend(framealpha = 1)
-# # plt.show()
 
 
 

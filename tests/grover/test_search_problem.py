@@ -4,6 +4,7 @@ from math import floor, log2
 from grover import SearchProblem
 from statevector import StateVector
 from emulator import MyEmulator
+from itertools import product
 
 class TestSearchProblem:
 
@@ -45,35 +46,36 @@ class TestSearchProblem:
         with pytest.raises(ValueError):
             SearchProblem(N=2, marked=[2])  # 2 is equal to N (2)
 
-    
-    def test_oracle_circuit(self, search_problem, emulator):
-        """Test the oracle circuit output"""
+        with pytest.raises(ValueError):
+            SearchProblem(N=2, marked=[-1])  # negative input
 
-        circuit = search_problem.oracle_circuit()
-        N = search_problem.num_qubits_required
-
-        sv = emulator.apply_circuit(
-            circuit,
-            StateVector(list(np.ones(2**N)/np.sqrt(N)))
-        ).vector
-
-        compare = np.ones(2**N) * sv[0]
-        compare[3], compare[5] = -compare[3], -compare[5]
-        
-        assert np.allclose(sv, compare), "Oracle matrix does not match the expected transformation"
 
     
-    def test_oracle_circuit_1q(self, search_problem_1q, emulator):
+    def test_oracle_circuit(self, emulator):
         """Test the oracle circuit output"""
 
-        circuit = search_problem_1q.oracle_circuit()
-        N = 2**search_problem_1q.num_qubits_required
+        #iterate number of qubits
+        for nq in range(1, 4):
 
-        sv = emulator.apply_circuit(
-            circuit,
-            StateVector(list(np.ones(N)/np.sqrt(N)))
-        ).vector
-        
-        assert np.allclose(sv, [-1/np.sqrt(2),1/np.sqrt(2)]), "Oracle matrix does not match the expected transformation"
+            #iterate all possible marked answers
+            for triplet in product([0,1], repeat=nq):
+
+                #create search problem instance
+                sp = SearchProblem(N=2**nq, marked=[*triplet])
+                N = 2 ** sp.num_qubits_required
+                circuit = sp.oracle_circuit()
+
+                #flips signs by oracle
+                sv = emulator.apply_circuit(
+                    circuit,
+                    StateVector(list(np.ones(N)/np.sqrt(N)))
+                ).vector
+
+                #check correct phases are flipped
+                compare = np.ones(N) / np.sqrt(N)
+                compare[sp.marked_numbers] = -1 / np.sqrt(N)
+            
+                assert np.allclose(sv, compare), "Oracle matrix does not match the expected transformation"
+
 
         

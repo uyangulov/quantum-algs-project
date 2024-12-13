@@ -187,6 +187,11 @@ class TestQuantumCircuitFromQiskit:
         circ.x(0)  # Apply X gate to qubit 0
         circ.y(1)  # Apply X gate to qubit 0
         return circ
+    
+    @pytest.fixture
+    def empty_qiskit_circuit(self):
+        """Fixture to create an empty Qiskit quantum circuit."""
+        return QiskitQC()
 
     def test_from_qiskit_conversion(self, qiskit_circuit):
         """Test the conversion from Qiskit QuantumCircuit to custom QuantumCircuit."""
@@ -208,3 +213,10 @@ class TestQuantumCircuitFromQiskit:
         # Further, verify gate matrices if necessary
         assert (x_gate.matrix == X_matrix).all(), "Matrix of X gate does not match"
         assert (h_gate.matrix == Y_matrix).all(), "Matrix of H gate does not match"
+
+    def test_convert_empty_circuit(self, empty_qiskit_circuit):
+
+        custom_circuit = QuantumCircuit()
+        custom_circuit.from_qiskit(empty_qiskit_circuit)
+        assert custom_circuit.gates == []
+

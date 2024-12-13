@@ -23,27 +23,51 @@ class TestGrover:
     def qiskit_emulator(self):
         return QiskitWrapperEmulator()
     
-    # def test_grover_my_emulator(self, search_problem, my_emulator):
+    def test_inversion_circuit(self, my_emulator):
+        """Test the oracle circuit output"""
 
-    #     num_qubits = search_problem.num_qubits_required
-    #     N = 2**num_qubits
-    #     n_iter = 100
-    #     circuit = GroverCircuit().from_search_problem(search_problem)
-    #     state_vector = StateVector(list(np.ones(N)/np.sqrt(N)))
+        #iterate number of qubits
+        for nq in range(1, 4):
 
-    #     for k in range(1, n_iter):
-    #         state_vector = my_emulator.apply_ci
+            #create search problem instance
+            sp = SearchProblem(N=2**nq, marked=[0])
+            n = sp.num_qubits_required
+            N = 2 ** n
+            grover = GroverCircuit().from_search_problem(sp)
+            circuit = grover.__make__reflection__circuit__(n)
 
-    #     theta = 2 * np.arccos(np.sqrt(1 - 1/N))
+            sv = my_emulator.apply_circuit(
+                    circuit,
+                    StateVector(list(np.ones(N)/np.sqrt(N)))
+            ).vector
 
-    def test_grover_my_emulator(self, search_problem, my_emulator):
+            #check correct phases are flipped
+            compare = -np.ones(N) / np.sqrt(N)
+            compare[0] = +1 / np.sqrt(N)
+        
+            assert np.allclose(sv, compare), "Oracle matrix does not match the expected transformation"
 
-        num_qubits = search_problem.num_qubits_required
-        N = 2**num_qubits
-        circuit = GroverCircuit().__make__reflection__circuit__(num_qubits)
 
-        sv = my_emulator.apply_circuit(
-            circuit,
-            StateVector(list(np.ones(2**N)/np.sqrt(N)))
-        ).vector
+    def test_inversion_circuit_qiskit(self, qiskit_emulator):
+        """Test the oracle circuit output"""
 
+        #iterate number of qubits
+        for nq in range(1, 4):
+
+            #create search problem instance
+            sp = SearchProblem(N=2**nq, marked=[0])
+            n = sp.num_qubits_required
+            N = 2 ** n
+            grover = GroverCircuit().from_search_problem(sp)
+            circuit = grover.__make__reflection__circuit__(n)
+
+            sv = qiskit_emulator.apply_circuit(
+                    circuit,
+                    StateVector(list(np.ones(N)/np.sqrt(N)))
+            ).vector
+
+            #check correct phases are flipped
+            compare = -np.ones(N) / np.sqrt(N)
+            compare[0] = +1 / np.sqrt(N)
+        
+            assert np.allclose(sv, compare), "Oracle matrix does not match the expected transformation"

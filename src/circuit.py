@@ -274,7 +274,12 @@ class QuantumCircuit:
                 name=instruction.name)
             
             self.append(gate)
-
+        
+        if self.gates:
+            #correct global phase
+            phase = qiskit_circuit.global_phase
+            self.gates[0].matrix *= np.exp(1j * phase)
+        
         return self
         #DIRTY_WORKAROUND.END
     
