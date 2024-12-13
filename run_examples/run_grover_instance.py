@@ -25,7 +25,7 @@ def pretty_print_statevector(statevector):
 
 
 emu = MyEmulator()
-sp =  SearchProblem(N=1, marked=[0])
+sp =  SearchProblem(N=8, marked=[6,2,4])
 gr = GroverCircuit()
 gr.from_search_problem(sp)
 
@@ -33,26 +33,29 @@ n = sp.num_qubits_required
 print(n)
 N = 2**n
 grover = GroverCircuit().from_search_problem(sp)
+M = len(sp.marked_numbers)
 
 state_vector = StateVector(list(
     np.ones(N) / sqrt(N)
 ))
 
-n_iter = int(ceil(pi * sqrt(N) / 4)) + 1
+n_iter = int(ceil(pi * sqrt(N) / 4)) + 10
 print(n_iter)
 
 comp = []
 for k in range(1,n_iter):
     state_vector = emu.apply_circuit(grover, state_vector)
-    comp.append(state_vector[0])
+    comp.append(sqrt(M) * state_vector[6])
 
-theta = 2 * np.arccos(np.sqrt(1 - 1/N))
-rg = np.arange(1,n_iter,0.001)
+theta = 2 * np.arccos(sqrt(1-M/N))
+print(theta)
+rg = np.arange(1, n_iter, 1)
 theor = np.sin(theta * (2 * rg + 1) / 2)
 
 plt.scatter(range(1,n_iter), comp, label = r'grover result')
 plt.plot(rg, theor, label = r'sin($\frac{2k+1}{2} \theta$)' , ls = ":")
 plt.legend(framealpha = 1)
 plt.show()
+
 
 

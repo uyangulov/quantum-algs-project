@@ -6,6 +6,7 @@ from emulator import MyEmulator
 from grover import SearchProblem, GroverCircuit
 from statevector import StateVector
 
+sqrt, log2, ceil, pi = np.sqrt, np.log2, np.ceil, np.pi
 
 class TestGrover:
 
@@ -13,6 +14,11 @@ class TestGrover:
     def search_problem(self):
         """Fixture to create a SearchProblem instance."""
         return SearchProblem(N=8, marked=[6])
+    
+    @pytest.fixture
+    def search_problem(self):
+        """Fixture to create a SearchProblem instance."""
+        return SearchProblem(N=8, marked=[1,2,3])
     
     @pytest.fixture
     def my_emulator(self):
@@ -71,3 +77,45 @@ class TestGrover:
             compare[0] = +1 / np.sqrt(N)
         
             assert np.allclose(sv, compare), "Oracle matrix does not match the expected transformation"
+
+    def test_throughout_grover_test(self, my_emulator, search_problem):
+
+        emu = MyEmulator()
+        sp =  SearchProblem(N=8, marked=[1,2,7])
+        gr = GroverCircuit()
+        gr.from_search_problem(sp)
+
+        n = sp.num_qubits_required
+        print(n)
+        N = 2**n
+        grover = GroverCircuit().from_search_problem(sp)
+        M = len(sp.marked_numbers)
+
+        state_vector = StateVector(list(
+            np.ones(N) / sqrt(N)
+        ))
+
+        n_iter = int(ceil(pi * sqrt(N) / 4)) + 10
+        print(n_iter)
+
+        comp = []
+        for k in range(1,n_iter):
+            state_vector = emu.apply_circuit(grover, state_vector)
+            comp.append(M * state_vector[1] / sqrt(M))
+
+        theta = 2 * np.arccos(sqrt(1-M/N))
+        rg = np.arange(1, n_iter, 1)
+        theor = np.sin(theta * (2 * rg + 1) / 2)
+        assert np.allclose(comp, theor)
+        
+
+
+
+
+
+
+
+
+
+
+
