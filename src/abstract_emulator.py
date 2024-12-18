@@ -42,7 +42,6 @@ class AbstractEmulator(ABC):
         Args:
             gate: A gate to apply
             state_vector: An operand
-            inplace: whether to modify input state vector
 
         Returns:
             New statevector
@@ -63,7 +62,6 @@ class AbstractEmulator(ABC):
         Args:
             circuit: A circuit to apply
             state_vector: An operand
-            inplace: whether to modify input state vector
 
         Returns:
             New statevector

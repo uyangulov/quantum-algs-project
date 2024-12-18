@@ -200,11 +200,9 @@ class QuantumCircuit:
         qubit_to_current_layer = [0] * self.num_qubits
         layer_to_gate_indeces = []
 
-        for i in range(len(self.gates)):
+        for i, gate in enumerate(self.gates):
 
-            gate = self.gates[i]
             qubit_indeces = gate.qubit_indices
-
             maximum_layer = max([qubit_to_current_layer[qubit_id] \
                                  for qubit_id in qubit_indeces])
             
