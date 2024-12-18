@@ -53,18 +53,10 @@ class QAOA_MaxCut_Circuit(QuantumCircuit):
                 objective -= 1
         return objective
 
-    def expectation_val(self, backend: str = "MyEmulator", shots: int = None):
+    def expectation_val(self, backend, shots: int = None):
 
-        emulator = None
-        if backend == "Qiskit":
-            emulator = QiskitWrapperEmulator()
-        elif backend == "MyEmulator":
-            emulator = MyEmulator()
-        else:
-            raise ValueError("Unknown or unsupported backend")
-        
         #calculate output |result> of QAOA circuit
-        result = emulator.apply_circuit(
+        result = backend.apply_circuit(
             self, 
             StateVector(self.num_qubits)
         )
@@ -74,8 +66,8 @@ class QAOA_MaxCut_Circuit(QuantumCircuit):
             evolved = result.vector.copy()
             # calculate H|result>, where H is cost hamiltonian: H = 1/2 ∑_ij Z_i Z_j - N_edges/2
             for i, j in self.edges:
-                temp = emulator.apply_gate(Gate([i], Z, "Z"), result)
-                temp = emulator.apply_gate(Gate([j], Z, "Z"), temp)
+                temp = backend.apply_gate(Gate([i], Z, "Z"), result)
+                temp = backend.apply_gate(Gate([j], Z, "Z"), temp)
                 evolved = np.add(evolved, temp.vector)
 
             # calculate <result|H|result>
