@@ -5,6 +5,7 @@ from scipy.optimize import minimize
 from statevector import StateVector
 from emulator import MyEmulator
 from qiskit_wrapper import QiskitWrapperEmulator
+from itertools import product
 
 
 class QAOA_MaxCut_Circuit(QuantumCircuit):
@@ -84,7 +85,21 @@ class QAOA_MaxCut_Circuit(QuantumCircuit):
                 sum += objective * count
             return sum / np.sum(counts)
             
-            
+    def get_exact_result(self):
+        best_objective = float('inf')
+        best_bitstring = None
+
+        # Loop through each bitstring and calculate the Max-Cut objective
+        for bitstring_tuple in product([0, 1], repeat=self.num_qubits):
+            bitstring = ''.join(map(str, bitstring_tuple))  # Convert tuple to string
+            objective = self.max_cut_objective(bitstring)
+
+            # Update best result if a higher objective value is found
+            if objective < best_objective:
+                best_objective = objective
+                best_bitstring = bitstring
+
+        return best_objective, best_bitstring
             
         
             
