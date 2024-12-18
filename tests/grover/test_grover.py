@@ -78,10 +78,9 @@ class TestGrover:
         
             assert np.allclose(sv, compare), "Oracle matrix does not match the expected transformation"
 
-    def test_throughout_grover_test(self, my_emulator, search_problem):
+    def test_throughout_grover_test(self, my_emulator):
 
-        emu = MyEmulator()
-        sp =  SearchProblem(N=8, marked=[1,2,7])
+        sp =  SearchProblem(N=8, marked=[1,2,3])
         gr = GroverCircuit()
         gr.from_search_problem(sp)
 
@@ -99,11 +98,11 @@ class TestGrover:
         theta = 2 * np.arccos(sqrt(1-M/N))
 
         for k in range(1,n_iter):
-            state_vector = emu.apply_circuit(grover, state_vector)
-            for i, elem in enumerate(sp.marked_numbers):
+            state_vector = my_emulator.apply_circuit(grover, state_vector)
+            for elem in sp.marked_numbers:
                 assert np.allclose(
                     np.sin(theta * (2 * k + 1) / 2),
-                    M * state_vector[1] / sqrt(M))
+                    M * state_vector[elem] / sqrt(M))
 
 
 
