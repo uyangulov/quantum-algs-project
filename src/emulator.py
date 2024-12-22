@@ -1,11 +1,11 @@
 from abstract_emulator import AbstractEmulator, UnsupportedNumberOfQubits, OperandOutOfBoundsError
 from circuit import Gate, QuantumCircuit
 from statevector import StateVector
+import numpy as np
 
 
 class MyEmulator(AbstractEmulator):
-    
-
+        
     '''
         Apply single-qubit gate to input_state_vector. Does not modify input
     '''

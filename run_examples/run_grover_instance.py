@@ -45,7 +45,7 @@ print(n_iter)
 comp = []
 for k in range(1,n_iter):
     state_vector = emu.apply_circuit(grover, state_vector)
-    comp.append(sqrt(M) * state_vector[6])
+    comp.append(sqrt(M) * state_vector[sp.marked_numbers[0]])
 
 theta = 2 * np.arccos(sqrt(1-M/N))
 print(theta)

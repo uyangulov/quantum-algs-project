@@ -12,7 +12,7 @@ class QAOA_MaxCut_Circuit(QuantumCircuit):
 
     #create qaoa instance with 0 layers (just H to prepare state)
     def __init__(self, num_qubits: int = 1, edges: list[tuple] = None):
-        
+        super().__init__()
         if not isinstance(num_qubits, int):
             raise ValueError("num_layers and num_qubits must be integer")
         
@@ -79,10 +79,16 @@ class QAOA_MaxCut_Circuit(QuantumCircuit):
         else:
             probablilties = np.abs(result.vector)**2
             counts = np.random.multinomial(shots, probablilties)
+            exact = self.get_exact_result()
             sum = 0
+            n_correct = 0
             for number, count in enumerate(counts):
                 objective = self.max_cut_objective(format(number, f"0{self.num_qubits}b")[::-1])
                 sum += objective * count
+                if objective == exact:
+                    n_correct+=1
+            
+            #print(f"sum / sumcount {sum / np.sum(counts)}")
             return sum / np.sum(counts)
             
     def get_exact_result(self):

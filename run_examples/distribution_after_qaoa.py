@@ -25,19 +25,13 @@ def visualize_graph(edges, node_colors=None):
     plt.show()
 
 # Define edges for the graph
-edges = []
+edges = [(0,1),(1,2),(2,0)]
 
-# Open and read the file
-with open("el.txt", "r") as file:
-    for line in file:
-        # Split each line into two integers and add as a tuple to the edges list
-        node1, node2 = map(int, line.split())
-        edges.append((node1, node2))
 
 # Prepare a 2-layer QAOA circuit
 def prepare_2_layer(x):
     beta1, beta2, gamma1, gamma2 = x
-    qaoa_circ = QAOA_MaxCut_Circuit(num_qubits=12, edges=edges)
+    qaoa_circ = QAOA_MaxCut_Circuit(num_qubits=3, edges=edges)
     qaoa_circ.add_layer(gamma1, beta1)
     qaoa_circ.add_layer(gamma2, beta2)
     return qaoa_circ
