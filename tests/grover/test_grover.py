@@ -80,7 +80,7 @@ class TestGrover:
 
     def test_throughout_grover_test(self, my_emulator):
 
-        sp =  SearchProblem(N=8, marked=[1,6,3])
+        sp =  SearchProblem(N=8, marked=[1,2,3])
         gr = GroverCircuit()
         gr.from_search_problem(sp)
 

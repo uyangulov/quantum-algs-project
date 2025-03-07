@@ -18,7 +18,6 @@ class QiskitWrapperEmulator(AbstractEmulator):
         apply_gate(gate: Gate, input_vector: StateVector) -> StateVector:
             Applies a single quantum gate to an input quantum state vector using Qiskit's statevector simulator.
     """
-
     
     def apply_circuit(self, 
                       circuit: QuantumCircuit,

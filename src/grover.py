@@ -127,7 +127,6 @@ class GroverCircuit(QuantumCircuit):
     """
 
     def __init__(self):
-        super().__init__()
         """
         Initializes the GroverCircuit class.
         """
@@ -203,6 +202,10 @@ class GroverCircuit(QuantumCircuit):
         """
         for index in range(n):
             self.append(Gate([index], H, f"Hadamard_{index}"))
+
+
+
+
 
     
 
